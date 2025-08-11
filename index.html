@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>متجر العطور والشنط ومستحضرات التجميل</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <span class="logo"></span>
+        <span>متجر الجمال</span>
+      </div>
+      <div class="search">
+        <input id="searchInput" type="search" placeholder="ابحث عن منتج..." />
+        <button id="searchBtn">بحث</button>
+      </div>
+      <div>
+        <a class="btn outline" href="cart.html">السلة</a>
+        <a class="btn primary" href="admin/">لوحة التحكم</a>
+      </div>
+    </div>
+  </header>
+ 
+  <!-- قسم الهيرو: سلايدر صور مع نص وزر -->
+  <section class="hero" aria-label="عروض مميزة">
+    <div class="container">
+      <div class="hero-wrapper">
+        <button class="hero-nav prev" aria-label="السابق">&#x2039;</button>
+        <button class="hero-nav next" aria-label="التالي">&#x203A;</button>
+        <div class="hero-slides"></div>
+        <div class="hero-dots" role="tablist" aria-label="مؤشرات الشرائح"></div>
+      </div>
+    </div>
+  </section>
+ 
+  <main class="container">
+    <section class="card" style="padding:12px;margin-bottom:12px">
+      <h3 style="margin-top:0">التصنيفات</h3>
+      <div id="categoriesList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </section>
+    <div class="filters">
+      <select id="categoryFilter" class="select">
+        <option value="">كل التصنيفات</option>
+      </select>
+      <select id="subcategoryFilter" class="select">
+        <option value="">كل الفئات</option>
+      </select>
+      <select id="sortFilter" class="select">
+        <option value="new">الأحدث</option>
+        <option value="price_asc">السعر: من الأرخص للأغلى</option>
+        <option value="price_desc">السعر: من الأغلى للأرخص</option>
+      </select>
+    </div>
+
+    <div id="productsGrid" class="grid"></div>
+  </main>
+
+  <footer>
+    <div class="container">© 2025 متجر الجمال</div>
+  </footer>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="config/config.js"></script>
+  <script src="assets/js/supabaseClient.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

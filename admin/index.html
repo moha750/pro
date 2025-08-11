@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة التحكم - متجر الجمال</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <span class="logo"></span>
+        <a href="../index.html" style="color:inherit;text-decoration:none">متجر الجمال</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>إدارة المنتجات</h1>
+
+    <section class="card" style="padding:12px;margin-top:12px">
+      <h3>إدارة سلايدر الهيرو</h3>
+      <form id="heroForm">
+        <input type="hidden" id="heroId" />
+        <input type="hidden" id="heroImageUrl" />
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
+          <input id="heroTitle" placeholder="العنوان" required />
+          <input id="heroSubtitle" placeholder="النص الفرعي" />
+          <input id="heroBtnText" placeholder="نص الزر (مثال: تسوق الآن)" />
+          <input id="heroBtnLink" placeholder="رابط الزر (مثال: #productsGrid أو /product.html?id=..)" />
+          <input id="heroSort" type="number" step="1" min="0" value="0" placeholder="ترتيب العرض" />
+          <label style="display:flex;align-items:center;gap:6px"><input id="heroActive" type="checkbox" checked /> تفعيل</label>
+          <input id="heroImage" type="file" accept="image/*" required />
+          <button class="btn primary" type="submit">حفظ الشريحة</button>
+          <button class="btn outline" type="button" id="resetHeroForm">تفريغ</button>
+        </div>
+      </form>
+      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px">
+        <h4 style="margin:0">قائمة الشرائح</h4>
+        <button class="btn outline" id="refreshHero">تحديث</button>
+      </div>
+      <table class="table" id="heroTable" style="margin-top:8px">
+        <thead>
+          <tr><th>الصورة</th><th>العنوان</th><th>زر</th><th>ترتيب</th><th>مفعل</th><th style="width:200px">تحكم</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card" style="padding:12px;margin-top:12px">
+      <h3>إدارة التصنيفات</h3>
+      <form id="categoryForm">
+        <input type="hidden" id="catId" />
+        <input type="hidden" id="catImageUrl" />
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
+          <input id="catName" placeholder="اسم التصنيف" required style="flex:1;min-width:220px" />
+          <input id="catImage" type="file" accept="image/*" required />
+          <button class="btn primary" type="submit">حفظ التصنيف</button>
+          <button class="btn outline" type="button" id="resetCatForm">تفريغ</button>
+        </div>
+      </form>
+      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px">
+        <h4 style="margin:0">قائمة التصنيفات</h4>
+        <button class="btn outline" id="refreshCats">تحديث</button>
+      </div>
+      <table class="table" id="categoriesTable" style="margin-top:8px">
+        <thead><tr><th>الصورة</th><th>الاسم</th><th style="width:160px">تحكم</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card" style="padding:12px;margin-top:12px">
+      <h3>إدارة الفئات</h3>
+      <form id="subcategoryForm">
+        <input type="hidden" id="subcatId" />
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
+          <select id="subcatParentId"><option value="">اختر التصنيف الأب</option></select>
+          <input id="subcatName" placeholder="اسم الفئة" required />
+          <button class="btn primary" type="submit">حفظ الفئة</button>
+          <button class="btn outline" type="button" id="resetSubcatForm">تفريغ</button>
+        </div>
+      </form>
+      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px">
+        <h4 style="margin:0">قائمة الفئات</h4>
+        <button class="btn outline" id="refreshSubcats">تحديث</button>
+      </div>
+      <table class="table" id="subcategoriesTable" style="margin-top:8px">
+        <thead><tr><th>الفئة</th><th>التصنيف الأب</th><th style="width:160px">تحكم</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card" style="padding:12px">
+      <h3>إضافة/تحديث منتج</h3>
+      <form id="productForm">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+          <input type="hidden" id="productId" />
+          <input id="name" placeholder="اسم المنتج" required />
+          <input id="price" type="number" step="0.01" placeholder="السعر" required />
+          <input id="stock" type="number" step="1" min="0" placeholder="الكمية بالمخزون" required />
+          <select id="parentCategoryId"><option value="">اختر التصنيف الأب</option></select>
+          <select id="subcategoryId"><option value="">اختر الفئة</option></select>
+          <input id="image" type="file" accept="image/*" />
+        </div>
+        <textarea id="description" placeholder="الوصف" style="width:100%;margin-top:8px" rows="3"></textarea>
+        <div class="actions">
+          <button class="btn primary" type="submit">حفظ</button>
+          <button class="btn outline" type="button" id="resetForm">تفريغ</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" style="padding:12px;margin-top:16px">
+      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+        <h3>قائمة المنتجات</h3>
+        <button class="btn outline" id="refresh">تحديث</button>
+      </div>
+      <table class="table" id="productsTable">
+        <thead><tr><th>الصورة</th><th>الاسم</th><th>السعر</th><th>المخزون</th><th>التصنيف</th><th>تحكم</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">© 2025 متجر الجمال</div>
+  </footer>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="../config/config.js"></script>
+  <script src="../assets/js/supabaseClient.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

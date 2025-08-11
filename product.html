@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تفاصيل المنتج</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <span class="logo"></span>
+        <a href="/" style="color:inherit;text-decoration:none">متجر الجمال</a>
+      </div>
+      <div>
+        <a class="btn outline" href="cart.html">السلة</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="productDetails"></div>
+  </main>
+
+  <footer>
+    <div class="container">© 2025 متجر الجمال</div>
+  </footer>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="config/config.js"></script>
+  <script src="assets/js/supabaseClient.js"></script>
+  <script>
+    (async function(){
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      const container = document.getElementById('productDetails');
+      if(!id){ container.textContent = 'لم يتم تحديد منتج.'; return; }
+      const { data, error } = await sb.from('products').select('id,name,description,price,image_url,category_id,stock').eq('id', id).single();
+      if(error){ container.textContent = 'تعذر تحميل المنتج'; console.error(error); return; }
+      container.innerHTML = `
+        <div class="card">
+          <img src="${data.image_url || ''}" alt="${data.name}" />
+          <div class="content">
+            <div class="badge">${data.category_id || ''}</div>
+            <h2>${data.name}</h2>
+            <p>${data.description || ''}</p>
+            <div class="price">${Number(data.price).toFixed(2)} ر.س</div>
+            <div style="margin:6px 0;color:#6b3b52">المتوفر: ${typeof data.stock==='number'? data.stock : 'غير محدد'}</div>
+            <div class="actions">
+              <button class="btn primary" id="addToCart">${data.stock===0? 'غير متوفر' : 'أضف للسلة'}</button>
+            </div>
+          </div>
+        </div>`;
+      document.getElementById('addToCart').onclick = ()=>{
+        if(data.stock === 0){ alert('المنتج غير متوفر حالياً'); return; }
+        const cart = JSON.parse(localStorage.getItem('cart')||'[]');
+        const existing = cart.find(i=>String(i.id)===String(data.id));
+        if(existing){
+          const currentStock = typeof existing.stock==='number' ? existing.stock : data.stock;
+          if(typeof currentStock === 'number' && existing.qty >= currentStock){
+            alert('لا يمكن إضافة كمية أكثر من المتوفر في المخزون');
+            return;
+          }
+          existing.qty += 1;
+          if(existing.stock == null && data.stock != null) existing.stock = data.stock;
+        } else {
+          cart.push({id:data.id,name:data.name,price:Number(data.price),image:data.image_url,qty:1, stock: data.stock});
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        alert('تمت الإضافة للسلة');
+      };
+      if(data.stock === 0){ document.getElementById('addToCart').disabled = true; }
+    })();
+  </script>
+</body>
+</html>
