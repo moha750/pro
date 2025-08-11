@@ -4,128 +4,398 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>لوحة التحكم - متجر الجمال</title>
-  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 <body>
-  <header>
-    <div class="container nav">
-      <div class="brand">
-        <span class="logo"></span>
-        <a href="../index.html" style="color:inherit;text-decoration:none">متجر الجمال</a>
-      </div>
-    </div>
-  </header>
-
-  <main class="container">
-    <h1>إدارة المنتجات</h1>
-
-    <section class="card" style="padding:12px;margin-top:12px">
-      <h3>إدارة سلايدر الهيرو</h3>
-      <form id="heroForm">
-        <input type="hidden" id="heroId" />
-        <input type="hidden" id="heroImageUrl" />
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
-          <input id="heroTitle" placeholder="العنوان" required />
-          <input id="heroSubtitle" placeholder="النص الفرعي" />
-          <input id="heroBtnText" placeholder="نص الزر (مثال: تسوق الآن)" />
-          <input id="heroBtnLink" placeholder="رابط الزر (مثال: #productsGrid أو /product.html?id=..)" />
-          <input id="heroSort" type="number" step="1" min="0" value="0" placeholder="ترتيب العرض" />
-          <label style="display:flex;align-items:center;gap:6px"><input id="heroActive" type="checkbox" checked /> تفعيل</label>
-          <input id="heroImage" type="file" accept="image/*" required />
-          <button class="btn primary" type="submit">حفظ الشريحة</button>
-          <button class="btn outline" type="button" id="resetHeroForm">تفريغ</button>
+  <div class="admin-container">
+    <!-- الشريط الجانبي -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <span class="logo"></span>
+          <span>متجر الجمال</span>
         </div>
-      </form>
-      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px">
-        <h4 style="margin:0">قائمة الشرائح</h4>
-        <button class="btn outline" id="refreshHero">تحديث</button>
       </div>
-      <table class="table" id="heroTable" style="margin-top:8px">
-        <thead>
-          <tr><th>الصورة</th><th>العنوان</th><th>زر</th><th>ترتيب</th><th>مفعل</th><th style="width:200px">تحكم</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <section class="card" style="padding:12px;margin-top:12px">
-      <h3>إدارة التصنيفات</h3>
-      <form id="categoryForm">
-        <input type="hidden" id="catId" />
-        <input type="hidden" id="catImageUrl" />
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
-          <input id="catName" placeholder="اسم التصنيف" required style="flex:1;min-width:220px" />
-          <input id="catImage" type="file" accept="image/*" required />
-          <button class="btn primary" type="submit">حفظ التصنيف</button>
-          <button class="btn outline" type="button" id="resetCatForm">تفريغ</button>
-        </div>
-      </form>
-      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px">
-        <h4 style="margin:0">قائمة التصنيفات</h4>
-        <button class="btn outline" id="refreshCats">تحديث</button>
+      
+      <nav class="sidebar-nav">
+        <ul>
+          <li>
+            <a href="#" class="active" data-tab="dashboard">
+              <i class="fas fa-home"></i>
+              <span>لوحة التحكم</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" data-tab="products">
+              <i class="fas fa-box-open"></i>
+              <span>المنتجات</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" data-tab="categories">
+              <i class="fas fa-tags"></i>
+              <span>التصنيفات</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" data-tab="subcategories">
+              <i class="fas fa-tag"></i>
+              <span>الفئات الفرعية</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" data-tab="hero-slider">
+              <i class="fas fa-images"></i>
+              <span>سلايدر الهيرو</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <a href="../index.html" class="store-front">
+          <i class="fas fa-store"></i>
+          <span>عرض المتجر</span>
+        </a>
       </div>
-      <table class="table" id="categoriesTable" style="margin-top:8px">
-        <thead><tr><th>الصورة</th><th>الاسم</th><th style="width:160px">تحكم</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
+    </aside>
 
-    <section class="card" style="padding:12px;margin-top:12px">
-      <h3>إدارة الفئات</h3>
-      <form id="subcategoryForm">
-        <input type="hidden" id="subcatId" />
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
-          <select id="subcatParentId"><option value="">اختر التصنيف الأب</option></select>
-          <input id="subcatName" placeholder="اسم الفئة" required />
-          <button class="btn primary" type="submit">حفظ الفئة</button>
-          <button class="btn outline" type="button" id="resetSubcatForm">تفريغ</button>
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+      <header class="main-header">
+        <div class="header-title">
+          <h1>لوحة التحكم</h1>
         </div>
-      </form>
-      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:12px">
-        <h4 style="margin:0">قائمة الفئات</h4>
-        <button class="btn outline" id="refreshSubcats">تحديث</button>
+        <div class="user-menu">
+          <span class="user-name">مرحباً، المدير</span>
+          <div class="user-avatar">
+            <i class="fas fa-user-circle"></i>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-wrapper">
+        <!-- قسم لوحة التحكم -->
+        <section class="tab-content active" id="dashboard-tab">
+          <div class="stats-cards">
+            <div class="stat-card">
+              <div class="stat-icon" style="background-color: #f0f7ff; color: #3b82f6;">
+                <i class="fas fa-box-open"></i>
+              </div>
+              <div class="stat-info">
+                <h3>المنتجات</h3>
+                <p id="products-count">0</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background-color: #f0fdf4; color: #10b981;">
+                <i class="fas fa-tags"></i>
+              </div>
+              <div class="stat-info">
+                <h3>التصنيفات</h3>
+                <p id="categories-count">0</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background-color: #fff7ed; color: #f97316;">
+                <i class="fas fa-tag"></i>
+              </div>
+              <div class="stat-info">
+                <h3>الفئات الفرعية</h3>
+                <p id="subcategories-count">0</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background-color: #fef2f2; color: #ef4444;">
+                <i class="fas fa-images"></i>
+              </div>
+              <div class="stat-info">
+                <h3>شرائح الهيرو</h3>
+                <p id="hero-slides-count">0</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- قسم المنتجات -->
+        <section class="tab-content" id="products-tab">
+          <div class="card">
+            <div class="card-header">
+              <h2>إدارة المنتجات</h2>
+            </div>
+            <div class="card-body">
+              <form id="productForm">
+                <div class="form-grid">
+                  <input type="hidden" id="productId" />
+                  <div class="form-group">
+                    <label for="name">اسم المنتج</label>
+                    <input id="name" placeholder="اسم المنتج" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="price">السعر</label>
+                    <input id="price" type="number" step="0.01" placeholder="السعر" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="stock">الكمية بالمخزون</label>
+                    <input id="stock" type="number" step="1" min="0" placeholder="الكمية بالمخزون" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="parentCategoryId">التصنيف الأب</label>
+                    <select id="parentCategoryId"><option value="">اختر التصنيف الأب</option></select>
+                  </div>
+                  <div class="form-group">
+                    <label for="subcategoryId">الفئة الفرعية</label>
+                    <select id="subcategoryId"><option value="">اختر الفئة</option></select>
+                  </div>
+                  <div class="form-group">
+                    <label for="image">صورة المنتج</label>
+                    <input id="image" type="file" accept="image/*" />
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="description">الوصف</label>
+                    <textarea id="description" placeholder="الوصف" rows="3"></textarea>
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button class="btn primary" type="submit">حفظ المنتج</button>
+                  <button class="btn outline" type="button" id="resetForm">تفريغ الحقول</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">
+                <h2>قائمة المنتجات</h2>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <select id="filterCategoryId" class="select">
+                  <option value="">كل التصنيفات</option>
+                </select>
+                <select id="filterSubcategoryId" class="select">
+                  <option value="">كل الفئات</option>
+                </select>
+                <button class="btn outline" id="clearFilters" type="button">مسح التصفية</button>
+                <button class="btn outline" id="refresh" type="button">
+                  <i class="fas fa-sync-alt"></i>
+                  تحديث
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table" id="productsTable">
+                  <thead>
+                    <tr>
+                      <th>الصورة</th>
+                      <th>الاسم</th>
+                      <th>السعر</th>
+                      <th>المخزون</th>
+                      <th>التصنيف</th>
+                      <th>تحكم</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- قسم التصنيفات -->
+        <section class="tab-content" id="categories-tab">
+          <div class="card">
+            <div class="card-header">
+              <h2>إدارة التصنيفات</h2>
+            </div>
+            <div class="card-body">
+              <form id="categoryForm">
+                <div class="form-grid">
+                  <input type="hidden" id="catId" />
+                  <input type="hidden" id="catImageUrl" />
+                  <div class="form-group">
+                    <label for="catName">اسم التصنيف</label>
+                    <input id="catName" placeholder="اسم التصنيف" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="catImage">صورة التصنيف</label>
+                    <input id="catImage" type="file" accept="image/*" required />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button class="btn primary" type="submit">حفظ التصنيف</button>
+                  <button class="btn outline" type="button" id="resetCatForm">تفريغ الحقول</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">
+                <h2>قائمة التصنيفات</h2>
+              </div>
+              <button class="btn outline" id="refreshCats">
+                <i class="fas fa-sync-alt"></i>
+                تحديث
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table" id="categoriesTable">
+                  <thead>
+                    <tr>
+                      <th>الصورة</th>
+                      <th>الاسم</th>
+                      <th>تحكم</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- قسم الفئات الفرعية -->
+        <section class="tab-content" id="subcategories-tab">
+          <div class="card">
+            <div class="card-header">
+              <h2>إدارة الفئات الفرعية</h2>
+            </div>
+            <div class="card-body">
+              <form id="subcategoryForm">
+                <div class="form-grid">
+                  <input type="hidden" id="subcatId" />
+                  <div class="form-group">
+                    <label for="subcatParentId">التصنيف الأب</label>
+                    <select id="subcatParentId"><option value="">اختر التصنيف الأب</option></select>
+                  </div>
+                  <div class="form-group">
+                    <label for="subcatName">اسم الفئة الفرعية</label>
+                    <input id="subcatName" placeholder="اسم الفئة" required />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button class="btn primary" type="submit">حفظ الفئة</button>
+                  <button class="btn outline" type="button" id="resetSubcatForm">تفريغ الحقول</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">
+                <h2>قائمة الفئات الفرعية</h2>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <select id="filterSubcatsCategoryId" class="select">
+                  <option value="">كل التصنيفات</option>
+                </select>
+                <input id="filterSubcatsSearch" class="input" placeholder="ابحث باسم الفئة" />
+                <button class="btn outline" id="clearSubcatsFilters" type="button">مسح التصفية</button>
+                <button class="btn outline" id="refreshSubcats" type="button">
+                  <i class="fas fa-sync-alt"></i>
+                  تحديث
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table" id="subcategoriesTable">
+                  <thead>
+                    <tr>
+                      <th>الفئة</th>
+                      <th>التصنيف الأب</th>
+                      <th>تحكم</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- قسم سلايدر الهيرو -->
+        <section class="tab-content" id="hero-slider-tab">
+          <div class="card">
+            <div class="card-header">
+              <h2>إدارة سلايدر الهيرو</h2>
+            </div>
+            <div class="card-body">
+              <form id="heroForm">
+                <div class="form-grid">
+                  <input type="hidden" id="heroId" />
+                  <input type="hidden" id="heroImageUrl" />
+                  <div class="form-group">
+                    <label for="heroTitle">العنوان</label>
+                    <input id="heroTitle" placeholder="العنوان" required />
+                  </div>
+                  <div class="form-group">
+                    <label for="heroSubtitle">النص الفرعي</label>
+                    <input id="heroSubtitle" placeholder="النص الفرعي" />
+                  </div>
+                  <div class="form-group">
+                    <label for="heroBtnText">نص الزر</label>
+                    <input id="heroBtnText" placeholder="نص الزر (مثال: تسوق الآن)" />
+                  </div>
+                  <div class="form-group">
+                    <label for="heroBtnLink">رابط الزر</label>
+                    <input id="heroBtnLink" placeholder="رابط الزر (مثال: #productsGrid أو /product.html?id=..)" />
+                  </div>
+                  <div class="form-group">
+                    <label for="heroSort">ترتيب العرض</label>
+                    <input id="heroSort" type="number" step="1" min="0" value="0" placeholder="ترتيب العرض" />
+                  </div>
+                  <div class="form-group">
+                    <label for="heroImage">صورة الشريحة</label>
+                    <input id="heroImage" type="file" accept="image/*" required />
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button class="btn primary" type="submit">حفظ الشريحة</button>
+                  <button class="btn outline" type="button" id="resetHeroForm">تفريغ الحقول</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">
+                <h2>قائمة شرائح الهيرو</h2>
+              </div>
+              <button class="btn outline" id="refreshHero">
+                <i class="fas fa-sync-alt"></i>
+                تحديث
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table" id="heroTable">
+                  <thead>
+                    <tr>
+                      <th>الصورة</th>
+                      <th>العنوان</th>
+                      <th>زر</th>
+                      <th>ترتيب</th>
+                      <th>مفعل</th>
+                      <th>تحكم</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
-      <table class="table" id="subcategoriesTable" style="margin-top:8px">
-        <thead><tr><th>الفئة</th><th>التصنيف الأب</th><th style="width:160px">تحكم</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <section class="card" style="padding:12px">
-      <h3>إضافة/تحديث منتج</h3>
-      <form id="productForm">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
-          <input type="hidden" id="productId" />
-          <input id="name" placeholder="اسم المنتج" required />
-          <input id="price" type="number" step="0.01" placeholder="السعر" required />
-          <input id="stock" type="number" step="1" min="0" placeholder="الكمية بالمخزون" required />
-          <select id="parentCategoryId"><option value="">اختر التصنيف الأب</option></select>
-          <select id="subcategoryId"><option value="">اختر الفئة</option></select>
-          <input id="image" type="file" accept="image/*" />
-        </div>
-        <textarea id="description" placeholder="الوصف" style="width:100%;margin-top:8px" rows="3"></textarea>
-        <div class="actions">
-          <button class="btn primary" type="submit">حفظ</button>
-          <button class="btn outline" type="button" id="resetForm">تفريغ</button>
-        </div>
-      </form>
-    </section>
-
-    <section class="card" style="padding:12px;margin-top:16px">
-      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
-        <h3>قائمة المنتجات</h3>
-        <button class="btn outline" id="refresh">تحديث</button>
-      </div>
-      <table class="table" id="productsTable">
-        <thead><tr><th>الصورة</th><th>الاسم</th><th>السعر</th><th>المخزون</th><th>التصنيف</th><th>تحكم</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container">© 2025 متجر الجمال</div>
-  </footer>
+    </main>
+  </div>
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="../config/config.js"></script>

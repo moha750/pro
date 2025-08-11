@@ -1,4 +1,5 @@
 (function(){
+  // تعريف العناصر
   const tBody = document.querySelector('#productsTable tbody');
   const form = document.getElementById('productForm');
   const productId = document.getElementById('productId');
@@ -10,6 +11,14 @@
   const imageEl = document.getElementById('image');
   const descEl = document.getElementById('description');
 
+  // عناصر تصفية قائمة المنتجات
+  const filterCategoryIdEl = document.getElementById('filterCategoryId');
+  const filterSubcategoryIdEl = document.getElementById('filterSubcategoryId');
+
+  // عناصر تصفية قائمة الفئات الفرعية
+  const filterSubcatsCategoryIdEl = document.getElementById('filterSubcatsCategoryId');
+  const filterSubcatsSearchEl = document.getElementById('filterSubcatsSearch');
+
   // عناصر إدارة التصنيفات
   const catForm = document.getElementById('categoryForm');
   const catIdEl = document.getElementById('catId');
@@ -17,12 +26,14 @@
   const catImageEl = document.getElementById('catImage');
   const catImageUrlEl = document.getElementById('catImageUrl');
   const catsTBody = document.querySelector('#categoriesTable tbody');
-  // عناصر إدارة الفئات
+  
+  // عناصر إدارة الفئات الفرعية
   const subcatForm = document.getElementById('subcategoryForm');
   const subcatIdEl = document.getElementById('subcatId');
   const subcatNameEl = document.getElementById('subcatName');
   const subcatParentIdEl = document.getElementById('subcatParentId');
   const subcatsTBody = document.querySelector('#subcategoriesTable tbody');
+  
   // عناصر إدارة سلايدر الهيرو
   const heroForm = document.getElementById('heroForm');
   const heroIdEl = document.getElementById('heroId');
@@ -31,20 +42,42 @@
   const heroBtnTextEl = document.getElementById('heroBtnText');
   const heroBtnLinkEl = document.getElementById('heroBtnLink');
   const heroSortEl = document.getElementById('heroSort');
-  const heroActiveEl = document.getElementById('heroActive');
   const heroImageEl = document.getElementById('heroImage');
   const heroImageUrlEl = document.getElementById('heroImageUrl');
   const heroTBody = document.querySelector('#heroTable tbody');
+  
+  // عناصر الإحصائيات
+  const productsCountEl = document.getElementById('products-count');
+  const categoriesCountEl = document.getElementById('categories-count');
+  const subcategoriesCountEl = document.getElementById('subcategories-count');
+  const heroSlidesCountEl = document.getElementById('hero-slides-count');
+  
+  // عناصر التبويبات
+  const tabLinks = document.querySelectorAll('.sidebar-nav a[data-tab]');
+  const tabContents = document.querySelectorAll('.tab-content');
 
+  // تحميل التصنيفات
   async function loadCategories(){
     const { data, error } = await sb.from('categories').select('id,name').order('name');
     if(error){ console.error(error); return; }
     const opts = '<option value="">اختر التصنيف الأب</option>' + (data||[]).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
     if(parentCategoryIdEl) parentCategoryIdEl.innerHTML = opts;
     if(subcatParentIdEl) subcatParentIdEl.innerHTML = opts;
+
+    // تعبئة تصفية التصنيفات لقائمة المنتجات
+    if(filterCategoryIdEl){
+      const filterOpts = '<option value="">كل التصنيفات</option>' + (data||[]).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+      filterCategoryIdEl.innerHTML = filterOpts;
+    }
+
+    // تعبئة تصفية التصنيفات لقائمة الفئات الفرعية
+    if(filterSubcatsCategoryIdEl){
+      const filterOptsSubcats = '<option value="">كل التصنيفات</option>' + (data||[]).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+      filterSubcatsCategoryIdEl.innerHTML = filterOptsSubcats;
+    }
   }
 
-  // إدارة سلايدر الهيرو (CRUD)
+  // إدارة سلايدر الهيرو
   async function listHero(){
     if(!heroTBody) return;
     const { data, error } = await sb
@@ -52,19 +85,25 @@
       .select('id,title,subtitle,btn_text,btn_link,image_url,sort_order,active')
       .order('sort_order', { ascending:true })
       .order('created_at', { ascending:false });
+      
     if(error){ console.error(error); return; }
+    
+    // تحديث عداد شرائح الهيرو
+    if(heroSlidesCountEl) heroSlidesCountEl.textContent = data?.length || 0;
+    
     heroTBody.innerHTML = (data||[]).map(s=>`<tr data-id="${s.id}" draggable="true">
       <td><span class="drag-handle" title="سحب لإعادة الترتيب" style="cursor:grab">↕</span> ${s.image_url?`<img src="${s.image_url}" style="width:72px;height:48px;object-fit:cover;border-radius:8px;margin-inline-start:6px" />`:''}</td>
       <td><div>${s.title||''}</div><div style="font-size:12px;color:#6b3b52">${s.subtitle||''}</div></td>
       <td>${s.btn_text?`<a href="${s.btn_link||'#'}" target="_blank">${s.btn_text}</a>`:''}</td>
       <td>${typeof s.sort_order==='number'? s.sort_order : 0}</td>
-      <td>${s.active? 'نعم' : 'لا'}</td>
+      <td><label style="display:flex;align-items:center;gap:6px"><input type="checkbox" class="hero-active-toggle" data-id="${s.id}" ${s.active? 'checked' : ''}/> تفعيل</label></td>
       <td>
-        <button data-id="${s.id}" data-act="edit-hero">تعديل</button>
-        <button data-id="${s.id}" data-act="del-hero" style="color:#f66">حذف</button>
+        <button class="btn outline" data-id="${s.id}" data-act="edit-hero">تعديل</button>
+        <button class="btn outline" data-id="${s.id}" data-act="del-hero" style="color:#f66">حذف</button>
       </td>
     </tr>`).join('');
 
+    // أزرار التحكم تعديل/حذف
     heroTBody.querySelectorAll('button').forEach(b=>{
       const id = b.dataset.id; const act = b.dataset.act;
       b.onclick = async ()=>{
@@ -77,9 +116,11 @@
           heroBtnTextEl.value = data.btn_text||'';
           heroBtnLinkEl.value = data.btn_link||'';
           heroSortEl.value = typeof data.sort_order==='number'? data.sort_order : 0;
-          heroActiveEl.checked = !!data.active;
           heroImageUrlEl.value = data.image_url||'';
           if(heroImageEl){ heroImageEl.value=''; heroImageEl.removeAttribute('required'); }
+          
+          // الانتقال إلى تبويب الهيرو
+          switchTab('hero-slider');
           window.scrollTo({ top:0, behavior:'smooth' });
         } else if(act==='del-hero'){
           if(!confirm('حذف الشريحة؟')) return;
@@ -88,6 +129,20 @@
           await listHero();
         }
       };
+    });
+
+    // تبديل حالة التفعيل مباشرة من القائمة
+    heroTBody.querySelectorAll('.hero-active-toggle').forEach(chk=>{
+      chk.addEventListener('change', async (e)=>{
+        const id = e.target.dataset.id;
+        const active = !!e.target.checked;
+        const { error } = await sb.from('hero_slides').update({ active }).eq('id', id);
+        if(error){
+          alert('تعذر تحديث حالة التفعيل');
+          e.target.checked = !active;
+          console.error(error);
+        }
+      });
     });
 
     enableHeroDragAndDrop();
@@ -133,17 +188,45 @@
 
   async function persistHeroOrder(){
     const rows = Array.from(heroTBody.querySelectorAll('tr[draggable="true"]'));
-    // حدّث sort_order بحسب ترتيب الصفوف الجديد (0..n-1)
     const updates = rows.map((tr, i)=> sb.from('hero_slides').update({ sort_order: i }).eq('id', tr.dataset.id));
     try{
-      // نفّذ بالتوازي لتسريع العملية
       const results = await Promise.all(updates);
       const error = results.find(r=>r.error)?.error;
       if(error) throw error;
-      // إعادة التحميل لتحديث الأرقام المعروضة
       await listHero();
     }catch(err){
       console.error('فشل تحديث الترتيب', err);
+      alert('تعذر حفظ ترتيب الشرائح');
+    }
+  }
+
+  // ضمان ترتيب فريد لسلايدر الهيرو عند التغيير/الإضافة
+  async function reorderAllHeroSlides(targetId, desiredIndex, extraPayloadForTarget=null){
+    try{
+      // اجلب جميع الشرائح مرتبة بالترتيب الحالي
+      const { data: slides, error } = await sb
+        .from('hero_slides')
+        .select('id')
+        .order('sort_order', { ascending:true })
+        .order('created_at', { ascending:false });
+      if(error) throw error;
+      const ids = (slides||[]).map(s=>s.id).filter(id=>id!==targetId);
+      const idx = Math.max(0, Math.min(Number(desiredIndex)||0, ids.length));
+      ids.splice(idx, 0, targetId);
+
+      // حدّث جميع السجلات بفهرسها الجديد. إن وُجد extraPayloadForTarget أرفقه لتحديث بيانات الشريحة المستهدفة مع الترتيب
+      const updates = ids.map((id, i)=>{
+        if(id === targetId && extraPayloadForTarget){
+          return sb.from('hero_slides').update({ ...extraPayloadForTarget, sort_order: i }).eq('id', id);
+        }
+        return sb.from('hero_slides').update({ sort_order: i }).eq('id', id);
+      });
+      const results = await Promise.all(updates);
+      const firstErr = results.find(r=>r.error)?.error;
+      if(firstErr) throw firstErr;
+      await listHero();
+    }catch(err){
+      console.error('فشل إعادة ترتيب شرائح الهيرو', err);
       alert('تعذر حفظ ترتيب الشرائح');
     }
   }
@@ -155,8 +238,7 @@
       subtitle: heroSubtitleEl.value.trim() || null,
       btn_text: heroBtnTextEl.value.trim() || null,
       btn_link: heroBtnLinkEl.value.trim() || null,
-      sort_order: Math.max(0, Number(heroSortEl.value||0)),
-      active: !!heroActiveEl.checked
+      sort_order: Math.max(0, Number(heroSortEl.value||0))
     };
     try{
       if(heroImageEl.files && heroImageEl.files[0]){
@@ -166,20 +248,30 @@
       }
     }catch(err){ alert('فشل رفع الصورة'); console.error(err); return; }
 
-    if(heroIdEl.value){
-      const { error } = await sb.from('hero_slides').update(payload).eq('id', heroIdEl.value);
-      if(error){ alert('فشل التحديث'); console.error(error); return; }
-    } else {
-      const { error } = await sb.from('hero_slides').insert(payload);
-      if(error){ alert('فشل الإضافة'); console.error(error); return; }
+    try{
+      if(heroIdEl.value){
+        // تحديث مع إعادة ترتيب فريد: نضع الشريحة الحالية في الموضع المطلوب ونُعيد فهرسة الجميع
+        await reorderAllHeroSlides(heroIdEl.value, payload.sort_order, payload);
+      } else {
+        // أضف الشريحة أولاً للحصول على المعرّف، ثم أعد ترتيب الجميع لإتاحة إدراجها في الموضع المطلوب دون تعارض
+        const { data: inserted, error } = await sb
+          .from('hero_slides')
+          .insert({ ...payload, active: true })
+          .select('id')
+          .single();
+        if(error) throw error;
+        await reorderAllHeroSlides(inserted.id, payload.sort_order, null);
+      }
+      document.getElementById('resetHeroForm').click();
+      alert('تم حفظ الشريحة');
+    }catch(err){
+      console.error(err);
+      alert('حدث خطأ أثناء حفظ الشريحة');
     }
-    document.getElementById('resetHeroForm').click();
-    await listHero();
-    alert('تم حفظ الشريحة');
   });
 
   document.getElementById('resetHeroForm')?.addEventListener('click', ()=>{
-    heroIdEl.value=''; heroTitleEl.value=''; heroSubtitleEl.value=''; heroBtnTextEl.value=''; heroBtnLinkEl.value=''; heroSortEl.value='0'; heroActiveEl.checked=true; heroImageUrlEl.value=''; if(heroImageEl){ heroImageEl.value=''; heroImageEl.setAttribute('required',''); }
+    heroIdEl.value=''; heroTitleEl.value=''; heroSubtitleEl.value=''; heroBtnTextEl.value=''; heroBtnLinkEl.value=''; heroSortEl.value='0'; heroImageUrlEl.value=''; if(heroImageEl){ heroImageEl.value=''; heroImageEl.setAttribute('required',''); }
   });
 
   document.getElementById('refreshHero')?.addEventListener('click', listHero);
@@ -192,15 +284,28 @@
     subcategoryIdEl.innerHTML = '<option value="">اختر الفئة</option>' + (data||[]).map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
   }
 
+  // تحميل فئات التصفية الفرعية بناءً على تصنيف التصفية
+  async function loadFilterSubcategoriesForParent(parentId){
+    if(!filterSubcategoryIdEl) return;
+    if(!parentId){ filterSubcategoryIdEl.innerHTML = '<option value="">كل الفئات</option>'; return; }
+    const { data, error } = await sb.from('subcategories').select('id,name').eq('category_id', parentId).order('name');
+    if(error){ console.error(error); return; }
+    filterSubcategoryIdEl.innerHTML = '<option value="">كل الفئات</option>' + (data||[]).map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  }
+
   async function listCats(){
     const { data, error } = await sb.from('categories').select('id,name,image_url').order('name');
     if(error){ console.error(error); return; }
+    
+    // تحديث عداد التصنيفات
+    if(categoriesCountEl) categoriesCountEl.textContent = data?.length || 0;
+    
     catsTBody.innerHTML = (data||[]).map(c=>`<tr>
       <td>${c.image_url?`<img src="${c.image_url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px" />`:''}</td>
       <td>${c.name}</td>
       <td>
-        <button data-id="${c.id}" data-act="edit-cat">تعديل</button>
-        <button data-id="${c.id}" data-act="del-cat" style="color:#f66">حذف</button>
+        <button class="btn outline" data-id="${c.id}" data-act="edit-cat">تعديل</button>
+        <button class="btn outline" data-id="${c.id}" data-act="del-cat" style="color:#f66">حذف</button>
       </td>
     </tr>`).join('');
 
@@ -216,6 +321,9 @@
             if(data.image_url){ catImageEl.removeAttribute('required'); }
             else { catImageEl.setAttribute('required',''); }
           }
+          
+          // الانتقال إلى تبويب التصنيفات
+          switchTab('categories');
           window.scrollTo({ top:0, behavior:'smooth' });
         } else if(act==='del-cat'){
           if(!confirm('حذف التصنيف؟ سيؤثر على المنتجات المرتبطة.')) return;
@@ -229,15 +337,43 @@
   }
 
   async function list(){
-    const { data, error } = await sb.from('products').select('id,name,price,stock,category_id,subcategory_id,image_url').order('created_at',{ascending:false}).limit(200);
+    const { data, error } = await sb.from('products').select('id,name,price,stock,category_id,subcategory_id,image_url,created_at').order('created_at',{ascending:false}).limit(500);
     if(error){ console.error(error); return; }
+    
+    // تحديث عداد المنتجات
+    if(productsCountEl) productsCountEl.textContent = data?.length || 0;
+    
+    // بيانات مساعدة للتصنيف
     const catIds = [...new Set((data||[]).map(p=>p.category_id).filter(Boolean))];
     const subIds = [...new Set((data||[]).map(p=>p.subcategory_id).filter(Boolean))];
     let cats = [];
     if(catIds.length){ const { data: c } = await sb.from('categories').select('id,name').in('id', catIds); cats = c||[]; }
     let subs = [];
     if(subIds.length){ const { data: s } = await sb.from('subcategories').select('id,name').in('id', subIds); subs = s||[]; }
-    tBody.innerHTML = (data||[]).map(p=>{
+
+    // تطبيق التصفية حسب التحديد
+    const filterCatId = filterCategoryIdEl?.value ? Number(filterCategoryIdEl.value) : null;
+    const filterSubId = filterSubcategoryIdEl?.value ? Number(filterSubcategoryIdEl.value) : null;
+    let rows = (data||[]).filter(p=>{
+      if(filterSubId) return p.subcategory_id === filterSubId; // أولوية للفئة الفرعية
+      if(filterCatId) return p.category_id === filterCatId;
+      return true;
+    });
+
+    // ترتيب حسب اسم التصنيف ثم الفئة الفرعية ثم اسم المنتج
+    const catNameById = Object.fromEntries(cats.map(c=>[c.id, c.name]));
+    const subNameById = Object.fromEntries(subs.map(s=>[s.id, s.name]));
+    rows.sort((a,b)=>{
+      const ca = catNameById[a.category_id] || '';
+      const cb = catNameById[b.category_id] || '';
+      if(ca.localeCompare(cb, 'ar') !== 0) return ca.localeCompare(cb, 'ar');
+      const sa = subNameById[a.subcategory_id] || '';
+      const sb2 = subNameById[b.subcategory_id] || '';
+      if(sa.localeCompare(sb2, 'ar') !== 0) return sa.localeCompare(sb2, 'ar');
+      return (a.name||'').localeCompare(b.name||'', 'ar');
+    });
+
+    tBody.innerHTML = rows.map(p=>{
       const cat = cats.find(c=>c.id===p.category_id)?.name || '';
       const sub = subs.find(sc=>sc.id===p.subcategory_id)?.name || '';
       return `<tr>
@@ -247,8 +383,8 @@
         <td>${typeof p.stock==='number' ? p.stock : '-'}</td>
         <td>${sub || cat}</td>
         <td>
-          <button data-id="${p.id}" data-act="edit">تعديل</button>
-          <button data-id="${p.id}" data-act="del" style="color:#f66">حذف</button>
+          <button class="btn outline" data-id="${p.id}" data-act="edit">تعديل</button>
+          <button class="btn outline" data-id="${p.id}" data-act="del" style="color:#f66">حذف</button>
         </td>
       </tr>`;
     }).join('');
@@ -261,10 +397,12 @@
           if(error){ alert('تعذر تحميل المنتج'); return; }
           productId.value = data.id; nameEl.value = data.name; priceEl.value = data.price; stockEl.value = (typeof data.stock==='number'? data.stock : 0); descEl.value = data.description||'';
           imageEl.value = '';
-          // ضبط التصنيف والفئة
           parentCategoryIdEl.value = data.category_id || '';
           await loadSubcategoriesForParent(parentCategoryIdEl.value);
           subcategoryIdEl.value = data.subcategory_id || '';
+          
+          // الانتقال إلى تبويب المنتجات
+          switchTab('products');
           window.scrollTo({ top:0, behavior:'smooth' });
         } else if(act==='del'){
           if(!confirm('حذف المنتج؟')) return;
@@ -329,13 +467,12 @@
     e.preventDefault();
     const name = catNameEl.value.trim();
     if(!name){ alert('أدخل اسم التصنيف'); return; }
-    // إجبار وجود صورة
     const file = catImageEl?.files?.[0];
     if(!catIdEl.value && !file){ alert('الصورة مطلوبة'); return; }
     let image_url = catImageUrlEl.value || null;
     if(file){
       try{
-        image_url = await uploadImage(file); // تستخدم نفس دالة رفع صور المنتجات
+        image_url = await uploadImage(file);
       }catch(err){ console.error(err); alert('فشل رفع الصورة'); return; }
     }
     if(catIdEl.value){
@@ -349,6 +486,7 @@
     }
     document.getElementById('resetCatForm').click();
     await listCats();
+    await loadCategories();
     alert('تم الحفظ');
   });
 
@@ -363,25 +501,51 @@
     loadSubcategoriesForParent(e.target.value);
   });
 
-  // إدارة الفئات (CRUD)
+  // أحداث التصفية
+  filterCategoryIdEl?.addEventListener('change', async (e)=>{
+    await loadFilterSubcategoriesForParent(e.target.value);
+    await list();
+  });
+  filterSubcategoryIdEl?.addEventListener('change', async ()=>{
+    await list();
+  });
+  document.getElementById('clearFilters')?.addEventListener('click', async ()=>{
+    if(filterCategoryIdEl) filterCategoryIdEl.value = '';
+    if(filterSubcategoryIdEl) filterSubcategoryIdEl.innerHTML = '<option value="">كل الفئات</option>';
+    await list();
+  });
+
+  // إدارة الفئات الفرعية
   async function listSubcats(){
     const { data, error } = await sb
       .from('subcategories')
       .select('id,name,category_id')
       .order('name');
     if(error){ console.error(error); return; }
-    // اجلب أسماء التصنيفات للأب
-    const catIds = [...new Set((data||[]).map(s=>s.category_id).filter(Boolean))];
+    
+    // تحديث عداد الفئات الفرعية
+    if(subcategoriesCountEl) subcategoriesCountEl.textContent = data?.length || 0;
+    
+    // تطبيق التصفية
+    const selectedCatId = filterSubcatsCategoryIdEl?.value ? Number(filterSubcatsCategoryIdEl.value) : null;
+    const searchTxt = (filterSubcatsSearchEl?.value || '').trim().toLowerCase();
+    let filtered = (data||[]).filter(s => {
+      if(selectedCatId && s.category_id !== selectedCatId) return false;
+      if(searchTxt && !(s.name||'').toLowerCase().includes(searchTxt)) return false;
+      return true;
+    });
+
+    const catIds = [...new Set(filtered.map(s=>s.category_id).filter(Boolean))];
     let cats = [];
     if(catIds.length){ const { data: c } = await sb.from('categories').select('id,name').in('id', catIds); cats = c||[]; }
-    subcatsTBody.innerHTML = (data||[]).map(s=>{
+    subcatsTBody.innerHTML = filtered.map(s=>{
       const cat = cats.find(c=>c.id===s.category_id)?.name || '';
       return `<tr>
         <td>${s.name}</td>
         <td>${cat}</td>
         <td>
-          <button data-id="${s.id}" data-act="edit-sub">تعديل</button>
-          <button data-id="${s.id}" data-act="del-sub" style="color:#f66">حذف</button>
+          <button class="btn outline" data-id="${s.id}" data-act="edit-sub">تعديل</button>
+          <button class="btn outline" data-id="${s.id}" data-act="del-sub" style="color:#f66">حذف</button>
         </td>
       </tr>`;
     }).join('');
@@ -393,6 +557,9 @@
           const { data, error } = await sb.from('subcategories').select('*').eq('id', id).single();
           if(error){ alert('تعذر تحميل الفئة'); return; }
           subcatIdEl.value = data.id; subcatNameEl.value = data.name; subcatParentIdEl.value = data.category_id || '';
+          
+          // الانتقال إلى تبويب الفئات الفرعية
+          switchTab('subcategories');
           window.scrollTo({ top:0, behavior:'smooth' });
         } else if(act==='del-sub'){
           if(!confirm('حذف الفئة؟')) return;
@@ -419,7 +586,6 @@
     }
     document.getElementById('resetSubcatForm').click();
     await listSubcats();
-    // تحديث قوائم الفئات حسب التصنيف الأب الحالي في نموذج المنتج
     if(parentCategoryIdEl.value){ await loadSubcategoriesForParent(parentCategoryIdEl.value); }
   });
 
@@ -429,11 +595,47 @@
 
   document.getElementById('refreshSubcats')?.addEventListener('click', listSubcats);
 
+  // أحداث التصفية لقائمة الفئات الفرعية
+  filterSubcatsCategoryIdEl?.addEventListener('change', listSubcats);
+  filterSubcatsSearchEl?.addEventListener('input', listSubcats);
+  document.getElementById('clearSubcatsFilters')?.addEventListener('click', async ()=>{
+    if(filterSubcatsCategoryIdEl) filterSubcatsCategoryIdEl.value = '';
+    if(filterSubcatsSearchEl) filterSubcatsSearchEl.value = '';
+    await listSubcats();
+  });
+
+  // تبديل التبويبات
+  function switchTab(tabId){
+    // إزالة النشاط من جميع التبويبات
+    tabLinks.forEach(link => link.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
+    
+    // إضافة النشاط للتبويب المحدد
+    const activeLink = document.querySelector(`.sidebar-nav a[data-tab="${tabId}"]`);
+    const activeContent = document.getElementById(`${tabId}-tab`);
+    
+    if(activeLink) activeLink.classList.add('active');
+    if(activeContent) activeContent.classList.add('active');
+  }
+
+  // إضافة مستمعين لأحداث التبويبات
+  tabLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const tabId = link.getAttribute('data-tab');
+      switchTab(tabId);
+    });
+  });
+
+  // التهيئة الأولية
   (async function init(){
     await loadCategories();
     await listCats();
     await listSubcats();
     await listHero();
     await list();
+    
+    // تفعيل تبويب لوحة التحكم افتراضيًا
+    switchTab('dashboard');
   })();
 })();
